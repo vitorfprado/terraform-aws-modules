@@ -20,3 +20,4 @@ enable_cert_manager                 = false
 enable_external_secrets             = false
 enable_kube_prometheus_stack        = false
 enable_argocd                       = false
+enable_karpenter                    = false

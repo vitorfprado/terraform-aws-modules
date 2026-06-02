@@ -156,6 +156,30 @@ variable "enable_argocd" {
   default     = false
 }
 
+variable "enable_karpenter" {
+  description = "Instala o Karpenter, incluindo IRSA do controller, IAM role e access entry dos nós, fila SQS de interrupção e regras do EventBridge."
+  type        = bool
+  default     = false
+}
+
+variable "karpenter_chart_version" {
+  description = "Versão do chart Helm do Karpenter (OCI public.ecr.aws/karpenter). Para Karpenter v1+ a versão do chart coincide com a do app (ex.: \"1.1.1\")."
+  type        = string
+  default     = "1.1.1"
+}
+
+variable "karpenter_namespace" {
+  description = "Namespace onde o Karpenter será instalado. O padrão recomendado no v1 é kube-system."
+  type        = string
+  default     = "kube-system"
+}
+
+variable "karpenter_helm_values" {
+  description = "Lista de documentos YAML (raw) com valores adicionais para o chart do Karpenter."
+  type        = list(string)
+  default     = []
+}
+
 variable "argocd_chart_version" {
   description = "Versão do chart Helm do Argo CD."
   type        = string

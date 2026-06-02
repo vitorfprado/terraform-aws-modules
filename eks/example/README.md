@@ -66,6 +66,7 @@ Todos os add-ons vêm **desabilitados**. Para instalar, defina a flag correspond
 | `enable_external_secrets` | External Secrets Operator |
 | `enable_kube_prometheus_stack` | Prometheus + Grafana + Alertmanager |
 | `enable_argocd` | Argo CD |
+| `enable_karpenter` | Karpenter (autoscaling de nós; cria IRSA, SQS e EventBridge) |
 
 Exemplo — habilitar apenas Metrics Server e AWS Load Balancer Controller:
 

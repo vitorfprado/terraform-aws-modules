@@ -32,3 +32,8 @@ output "aws_load_balancer_controller_iam_role_arn" {
   description = "ARN da IAM role (IRSA) do AWS Load Balancer Controller, quando habilitado."
   value       = module.addons.aws_load_balancer_controller_iam_role_arn
 }
+
+output "karpenter_node_iam_role_name" {
+  description = "Nome da IAM role dos nós do Karpenter (use no spec.role do EC2NodeClass), quando habilitado."
+  value       = module.addons.karpenter_node_iam_role_name
+}

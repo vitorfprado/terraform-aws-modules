@@ -14,6 +14,7 @@ Este submódulo **não** cria o cluster nem configura os providers. Ele recebe o
 | `enable_external_secrets` | External Secrets Operator | `external-secrets` | não* |
 | `enable_kube_prometheus_stack` | kube-prometheus-stack | `monitoring` | não |
 | `enable_argocd` | Argo CD | `argocd` | não |
+| `enable_karpenter` | Karpenter | `kube-system` | **sim** |
 
 \* O External Secrets Operator é instalado sem IRSA. Cada `SecretStore`/`ClusterSecretStore` define a própria autenticação — para acessar AWS Secrets Manager/SSM, crie uma role IRSA dedicada e referencie-a no `serviceAccountRef`. Ver [Pontos de atenção](#pontos-de-atenção).
 
@@ -67,6 +68,7 @@ Cada componente expõe, além do `enable_*`:
 - `*_namespace` – namespace dedicado (para cert-manager, ESO, prometheus e argocd).
 - `*_helm_values` – `list(string)` de documentos YAML para sobrescrever valores do chart.
 - `cert_manager_install_crds` / `external_secrets_install_crds` – controlam a instalação dos CRDs (default `true`).
+- `karpenter_chart_version` / `karpenter_namespace` – versão do chart OCI e namespace (default `kube-system`).
 
 Exemplo de override de valores:
 
@@ -87,4 +89,9 @@ kube_prometheus_stack_helm_values = [
 - **External Secrets Operator:** para ler segredos da AWS, crie uma role IRSA com permissões mínimas (ex.: `secretsmanager:GetSecretValue` no ARN específico) e associe-a ao service account do `SecretStore`.
 - **kube-prometheus-stack:** instala um volume considerável de CRDs e recursos. Avalie a capacidade dos node groups antes de habilitar.
 - **Argo CD:** após a instalação, recupere a senha inicial do admin com `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d`.
+- **Karpenter:** o submódulo provisiona toda a infraestrutura AWS necessária: IRSA do controller, IAM role dos nós, *access entry* do tipo `EC2_LINUX` (para os nós ingressarem no cluster), fila SQS de interrupção e regras do EventBridge. Exige `enable_irsa = true` no módulo eks (padrão) e `authentication_mode` com suporte a access entries (`API` ou `API_AND_CONFIG_MAP`). Pré-requisitos e passos pós-instalação:
+    - **Tags de discovery:** as subnets e os security groups que o Karpenter usará devem ter a tag `karpenter.sh/discovery = <cluster_name>`.
+    - **EC2NodeClass / NodePool:** o chart não cria recursos de provisionamento. Após o apply, aplique ao menos um `EC2NodeClass` e um `NodePool`. No `EC2NodeClass`, use o output `karpenter_node_iam_role_name` em `spec.role`.
+    - **Capacidade inicial:** o controller precisa rodar em nós já existentes (ex.: um managed node group pequeno do módulo eks); ele não provisiona a si mesmo.
+    - **Versão do chart:** `karpenter_chart_version` aponta para uma release v1.x; confirme a compatibilidade com a versão do cluster antes do apply.
 - **Partition:** a policy do LBC usa ARNs `arn:aws:...`. Para GovCloud/China, ajuste o arquivo JSON.

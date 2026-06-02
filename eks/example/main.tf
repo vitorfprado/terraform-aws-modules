@@ -83,6 +83,7 @@ module "addons" {
   enable_external_secrets             = var.enable_external_secrets
   enable_kube_prometheus_stack        = var.enable_kube_prometheus_stack
   enable_argocd                       = var.enable_argocd
+  enable_karpenter                    = var.enable_karpenter
 
   tags = {
     Environment = "example"

@@ -66,3 +66,9 @@ variable "enable_argocd" {
   type        = bool
   default     = false
 }
+
+variable "enable_karpenter" {
+  description = "Instala o Karpenter (autoscaling de nós) via Helm, com IRSA, fila SQS e EventBridge."
+  type        = bool
+  default     = false
+}
