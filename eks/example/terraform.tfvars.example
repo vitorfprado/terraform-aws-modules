@@ -1,0 +1,22 @@
+region          = "us-east-1"
+cluster_name    = "demo"
+cluster_version = "1.32"
+
+vpc_id = "vpc-0123456789abcdef0"
+
+subnet_ids = [
+  "subnet-0123456789abcdef0",
+  "subnet-0123456789abcdef1",
+  "subnet-0123456789abcdef2",
+]
+
+admin_role_arn = "arn:aws:iam::123456789012:role/eks-admin"
+
+# Add-ons opcionais (todos desabilitados por padrão).
+# Habilite apenas os que desejar instalar.
+enable_metrics_server               = false
+enable_aws_load_balancer_controller = false
+enable_cert_manager                 = false
+enable_external_secrets             = false
+enable_kube_prometheus_stack        = false
+enable_argocd                       = false
