@@ -2,14 +2,28 @@
 
 Esta pasta é um ponto de partida pronto para uso. Copie os arquivos para o seu repositório de infraestrutura, ajuste os valores e aplique.
 
+Os módulos são referenciados **diretamente do GitHub** (branch `main`), então não é necessário ter este repositório clonado para consumi-los:
+
+```hcl
+module "vpc" {
+  source = "github.com/vitorfprado/terraform-aws-modules//vpc?ref=main"
+  # ...
+}
+
+module "eks" {
+  source = "github.com/vitorfprado/terraform-aws-modules//eks?ref=main"
+  # ...
+}
+```
+
 ## Estrutura
 
 ```
 example/
-├── main.tf                  # chamada do módulo eks
+├── main.tf                  # cria a VPC e o cluster (módulos vpc + eks + addons)
 ├── variables.tf             # variáveis de entrada do exemplo
-├── outputs.tf               # outputs úteis (endpoint, OIDC, kubeconfig)
-├── versions.tf              # versões e provider aws
+├── outputs.tf               # outputs úteis (vpc, endpoint, OIDC, kubeconfig)
+├── versions.tf              # versões e providers (aws, kubernetes, helm)
 └── terraform.tfvars.example # valores de exemplo
 ```
 
@@ -17,19 +31,19 @@ example/
 
 - Terraform >= 1.5
 - Credenciais AWS configuradas (`aws configure` ou variáveis de ambiente)
-- Uma VPC existente com pelo menos duas subnets em zonas de disponibilidade distintas (recomenda-se subnets privadas com NAT)
+- `aws` CLI e `kubectl` instalados localmente
+
+> A VPC é criada pelo próprio exemplo (módulo `vpc`). Não é necessário informar uma rede existente.
 
 ## Como usar
 
-1. Copie o arquivo de variáveis e preencha com os seus valores:
+1. Copie o arquivo de variáveis e ajuste o `admin_role_arn` (e opcionalmente `region`, `cluster_name`):
 
    ```bash
    cp terraform.tfvars.example terraform.tfvars
    ```
 
-2. Ajuste `terraform.tfvars` com o `vpc_id`, as `subnet_ids` e o `admin_role_arn` do seu ambiente.
-
-3. Inicialize e aplique:
+2. Inicialize e aplique:
 
    ```bash
    terraform init
@@ -37,7 +51,7 @@ example/
    terraform apply
    ```
 
-4. Gere o kubeconfig local (o comando é exposto como output):
+3. Gere o kubeconfig local (o comando é exposto como output):
 
    ```bash
    aws eks update-kubeconfig --region us-east-1 --name demo
@@ -46,11 +60,14 @@ example/
 
 ## O que este exemplo provisiona
 
+- **VPC** `10.0.0.0/16` com 3 subnets públicas e 3 privadas (uma por AZ), Internet Gateway e 1 NAT Gateway, já com as tags de subnet exigidas pelo EKS e pelo Karpenter
 - Cluster EKS com criptografia de secrets via KMS e logs do control plane no CloudWatch
 - OIDC provider habilitado para IRSA
 - Dois managed node groups: um `ON_DEMAND` (`general`) e um `SPOT` com taint (`spot`)
-- Add-ons gerenciados: `coredns`, `kube-proxy`, `vpc-cni` e `eks-pod-identity-agent`
+- Add-ons gerenciados: `coredns`, `kube-proxy`, `vpc-cni`, `eks-pod-identity-agent` e o `aws-ebs-csi-driver` (com IRSA, para volumes EBS dinâmicos)
 - Uma access entry concedendo acesso de administrador ao `admin_role_arn`
+
+Um único `terraform apply` resolve a ordem: VPC → EKS → add-ons.
 
 ## Add-ons opcionais via Helm
 

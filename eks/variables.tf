@@ -175,6 +175,18 @@ variable "cluster_addons" {
   default = {}
 }
 
+variable "enable_ebs_csi_driver" {
+  description = "Instala o add-on aws-ebs-csi-driver com IRSA (necessário para provisionamento dinâmico de volumes EBS a partir do Kubernetes 1.23)."
+  type        = bool
+  default     = true
+}
+
+variable "ebs_csi_driver_version" {
+  description = "Versão do add-on aws-ebs-csi-driver. Quando nulo, usa a versão padrão compatível com a versão do cluster."
+  type        = string
+  default     = null
+}
+
 variable "access_entries" {
   description = "Mapa de access entries do EKS (substitui o aws-auth). Cada entrada associa um principal IAM a políticas de acesso."
   type = map(object({

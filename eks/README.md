@@ -9,7 +9,7 @@ O módulo não cria a rede. Informe uma VPC e subnets existentes — assim ele s
 - `aws_eks_cluster` – control plane com logging e (opcional) criptografia de secrets
 - `aws_iam_role` – role do control plane e role compartilhada dos node groups
 - `aws_eks_node_group` – um managed node group por entrada no mapa `node_groups`
-- `aws_eks_addon` – add-ons gerenciados (coredns, kube-proxy, vpc-cni, ...)
+- `aws_eks_addon` – add-ons gerenciados (coredns, kube-proxy, vpc-cni, ...) e o EBS CSI driver com IRSA (opcional, ligado por padrão)
 - `aws_iam_openid_connect_provider` – OIDC provider para IRSA (opcional)
 - `aws_kms_key` / `aws_kms_alias` – criptografia de secrets (opcional)
 - `aws_cloudwatch_log_group` – logs do control plane
@@ -87,6 +87,8 @@ Um exemplo completo, copiável e pronto para uso está em [`example/`](./example
 | `kms_key_deletion_window_in_days` | Janela de exclusão da KMS key. | `number` | `30` | não |
 | `node_groups` | Mapa de managed node groups. | `map(object)` | `{}` | não |
 | `cluster_addons` | Mapa de EKS add-ons gerenciados. | `map(object)` | `{}` | não |
+| `enable_ebs_csi_driver` | Instala o add-on `aws-ebs-csi-driver` com IRSA. | `bool` | `true` | não |
+| `ebs_csi_driver_version` | Versão do add-on EBS CSI (null = padrão). | `string` | `null` | não |
 | `access_entries` | Mapa de access entries (acesso por API). | `map(object)` | `{}` | não |
 | `tags` | Tags aplicadas a todos os recursos. | `map(string)` | `{}` | não |
 
@@ -162,6 +164,7 @@ access_entries = {
 | `cloudwatch_log_group_name` | Log group do control plane. |
 | `node_groups` | Atributos dos node groups criados. |
 | `cluster_addons` | Atributos dos add-ons gerenciados. |
+| `ebs_csi_driver_iam_role_arn` | ARN da IAM role (IRSA) do EBS CSI driver. |
 
 ## Interligando com outros módulos
 

@@ -84,3 +84,8 @@ output "cluster_addons" {
     }
   }
 }
+
+output "ebs_csi_driver_iam_role_arn" {
+  description = "ARN da IAM role (IRSA) do add-on aws-ebs-csi-driver, quando habilitado."
+  value       = try(aws_iam_role.ebs_csi[0].arn, null)
+}

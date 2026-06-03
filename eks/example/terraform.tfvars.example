@@ -2,13 +2,8 @@ region          = "us-east-1"
 cluster_name    = "demo"
 cluster_version = "1.32"
 
-vpc_id = "vpc-0123456789abcdef0"
-
-subnet_ids = [
-  "subnet-0123456789abcdef0",
-  "subnet-0123456789abcdef1",
-  "subnet-0123456789abcdef2",
-]
+# A VPC é criada pelo próprio exemplo (módulo vpc). Não é preciso informar
+# vpc_id/subnet_ids — eles vêm dos outputs do módulo vpc.
 
 admin_role_arn = "arn:aws:iam::123456789012:role/eks-admin"
 

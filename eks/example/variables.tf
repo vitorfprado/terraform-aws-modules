@@ -16,16 +16,6 @@ variable "cluster_version" {
   default     = "1.32"
 }
 
-variable "vpc_id" {
-  description = "ID da VPC onde o cluster será criado."
-  type        = string
-}
-
-variable "subnet_ids" {
-  description = "IDs das subnets (preferencialmente privadas) para o cluster e os node groups."
-  type        = list(string)
-}
-
 variable "admin_role_arn" {
   description = "ARN do principal IAM que receberá acesso de administrador do cluster."
   type        = string

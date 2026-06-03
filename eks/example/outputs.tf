@@ -1,3 +1,13 @@
+output "vpc_id" {
+  description = "ID da VPC criada para o cluster."
+  value       = module.vpc.vpc_id
+}
+
+output "private_subnet_ids" {
+  description = "IDs das subnets privadas usadas pelo cluster."
+  value       = module.vpc.private_subnet_ids
+}
+
 output "cluster_name" {
   description = "Nome do cluster EKS."
   value       = module.eks.cluster_name

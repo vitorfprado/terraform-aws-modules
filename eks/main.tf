@@ -10,6 +10,9 @@ locals {
   enable_encryption  = var.create_kms_key || var.kms_key_arn != null
   encryption_key_arn = var.create_kms_key ? aws_kms_key.this[0].arn : var.kms_key_arn
 
+  oidc_provider_url   = replace(aws_eks_cluster.this.identity[0].oidc[0].issuer, "https://", "")
+  create_ebs_csi_irsa = var.enable_ebs_csi_driver && var.enable_irsa
+
   access_policy_associations = merge([
     for entry_key, entry in var.access_entries : {
       for assoc_key, assoc in entry.policy_associations :
