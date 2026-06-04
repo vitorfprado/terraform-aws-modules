@@ -69,7 +69,9 @@ module "irsa_analytics" {
   namespace        = "togglemaster"
   service_accounts = ["analytics-service"]
 
-  policy_json = data.aws_iam_policy_document.analytics.json
+  inline_policies = {
+    app = data.aws_iam_policy_document.analytics.json
+  }
 
   create_ssm_parameter = true
 
@@ -90,7 +92,9 @@ module "irsa_readonly" {
   namespace        = "togglemaster"
   service_accounts = ["reporting-service"]
 
-  policy_arns = ["arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"]
+  policy_arns = {
+    s3_readonly = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+  }
 
   tags = {
     Environment = "example"

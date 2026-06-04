@@ -28,16 +28,16 @@ variable "service_accounts" {
   }
 }
 
-variable "policy_json" {
-  description = "Documento de política IAM (JSON) anexado inline à role. Null para não anexar policy inline."
-  type        = string
-  default     = null
+variable "inline_policies" {
+  description = "Policies inline a anexar à role. Key = sufixo do nome (estática, conhecida no plan); value = documento JSON (pode ser known-after-apply, ex.: ARN de uma fila SQS criada no mesmo apply)."
+  type        = map(string)
+  default     = {}
 }
 
 variable "policy_arns" {
-  description = "ARNs de managed policies existentes a anexar à role. Use ARNs conhecidos no plan (evite valores known-after-apply)."
-  type        = list(string)
-  default     = []
+  description = "Managed policies a anexar à role. Key = rótulo estático (conhecido no plan); value = ARN da policy (pode ser known-after-apply)."
+  type        = map(string)
+  default     = {}
 }
 
 variable "max_session_duration" {

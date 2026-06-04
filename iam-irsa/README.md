@@ -16,8 +16,8 @@ credenciais temporárias via `sts:AssumeRoleWithWebIdentity`.
 ## Recursos criados
 
 - `aws_iam_role` – a role IRSA, com trust policy federada ao OIDC do cluster
-- `aws_iam_role_policy` – policy inline com as permissões (opcional)
-- `aws_iam_role_policy_attachment` – managed policies anexadas (opcional)
+- `aws_iam_role_policy` – policies inline com as permissões (uma por entrada de `inline_policies`)
+- `aws_iam_role_policy_attachment` – managed policies anexadas (uma por entrada de `policy_arns`)
 - `aws_ssm_parameter` – ARN da role publicado no Parameter Store (opcional)
 
 ## Uso
@@ -46,7 +46,9 @@ module "irsa_analytics" {
   namespace        = "togglemaster"
   service_accounts = ["analytics-service"]
 
-  policy_json = data.aws_iam_policy_document.analytics.json
+  inline_policies = {
+    app = data.aws_iam_policy_document.analytics.json
+  }
 
   create_ssm_parameter = true
 
@@ -78,10 +80,16 @@ A claim `aud` é sempre fixada em `sts.amazonaws.com`.
 
 ## Permissões: inline vs managed
 
-- **`policy_json`** — para permissões sob medida sobre ARNs específicos (a fila SQS, a tabela DynamoDB). Monte com `aws_iam_policy_document` no consumer e passe `.json`.
-- **`policy_arns`** — para reaproveitar managed policies (AWS-managed como `AmazonS3ReadOnlyAccess`, ou customer-managed). Passe ARNs **conhecidos no plan**; ARNs *known-after-apply* quebram o `for_each`.
+- **`inline_policies`** — para permissões sob medida sobre ARNs específicos (a fila SQS, a tabela DynamoDB). Monte com `aws_iam_policy_document` no consumer e passe `{ rótulo = doc.json }`.
+- **`policy_arns`** — para reaproveitar managed policies (AWS-managed como `AmazonS3ReadOnlyAccess`, ou customer-managed). Passe `{ rótulo = arn }`.
 
-Os dois podem ser usados juntos.
+Os dois são `map(string)` e podem ser usados juntos.
+
+> **Por que map e não string/list?** As permissões de uma role IRSA quase sempre referenciam
+> ARNs criados **no mesmo apply** (a fila, a tabela), que são *known-after-apply*. Um `count`
+> sobre `policy_json != null` ou um `for_each` sobre `toset(list_de_arns)` quebra com valor
+> desconhecido. Com map, o `for_each` itera sobre as **chaves** (rótulos estáticos que você
+> define) e os **valores** (JSON/ARN) podem ser computados sem quebrar o plan.
 
 ## SSM Parameter Store
 
@@ -106,8 +114,8 @@ ler o tfstate** — desacoplando a camada de infra da camada de aplicação.
 | `oidc_provider_url` | URL do issuer OIDC sem https:// (output do módulo eks). | `string` | — | sim |
 | `namespace` | Namespace do(s) service account(s). | `string` | — | sim |
 | `service_accounts` | SAs autorizados a assumir a role (`["*"]` = todos do namespace). | `list(string)` | — | sim |
-| `policy_json` | Policy inline (JSON). Null = nenhuma. | `string` | `null` | não |
-| `policy_arns` | Managed policies a anexar. | `list(string)` | `[]` | não |
+| `inline_policies` | Policies inline `{ rótulo = json }`. | `map(string)` | `{}` | não |
+| `policy_arns` | Managed policies `{ rótulo = arn }`. | `map(string)` | `{}` | não |
 | `max_session_duration` | Duração máxima da sessão (s). | `number` | `3600` | não |
 | `create_ssm_parameter` | Publica o ARN da role no SSM. | `bool` | `false` | não |
 | `ssm_parameter_name` | Nome do parâmetro SSM (null = `/irsa/<name>/role-arn`). | `string` | `null` | não |

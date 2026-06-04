@@ -42,18 +42,20 @@ resource "aws_iam_role" "irsa" {
   tags = merge(var.tags, { Name = var.name })
 }
 
-# Permissões inline (ARNs de recursos específicos — SQS, DynamoDB, etc.)
+# Permissões inline (ARNs de recursos específicos — SQS, DynamoDB, etc.).
+# for_each sobre as KEYS (estáticas) — o JSON pode ser known-after-apply.
 resource "aws_iam_role_policy" "inline" {
-  count = var.policy_json != null ? 1 : 0
+  for_each = var.inline_policies
 
-  name   = "${var.name}-inline"
+  name   = "${var.name}-${each.key}"
   role   = aws_iam_role.irsa.id
-  policy = var.policy_json
+  policy = each.value
 }
 
-# Managed policies existentes (AWS-managed ou customer-managed)
+# Managed policies (AWS-managed ou customer-managed). Key estática; o ARN
+# pode ser known-after-apply.
 resource "aws_iam_role_policy_attachment" "managed" {
-  for_each = toset(var.policy_arns)
+  for_each = var.policy_arns
 
   role       = aws_iam_role.irsa.name
   policy_arn = each.value

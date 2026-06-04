@@ -40,12 +40,20 @@ A lista nunca pode ser vazia: uma role IRSA sem `sub` na condição seria assum�
 qualquer SA de qualquer namespace daquele cluster — exatamente o que queremos evitar. A
 validação falha cedo, no plan, em vez de gerar uma trust policy perigosa.
 
-### `policy_json` e `policy_arns` separados
+### `inline_policies` e `policy_arns` como `map(string)`
 
-Permissões têm duas naturezas: sob medida (ARNs específicos → `policy_json`, montado com
+Permissões têm duas naturezas: sob medida (ARNs específicos → `inline_policies`, montado com
 `aws_iam_policy_document` no consumer) e reaproveitáveis (managed policies → `policy_arns`).
 Manter as duas vias permite combinar, e nenhuma é obrigatória — uma role pode existir só
 para ser referência de confiança.
+
+Ambas são `map(string)` **de propósito**. O JSON de uma policy IRSA quase sempre referencia
+ARNs criados no mesmo apply (a fila, a tabela) — valores *known-after-apply*. Se a meta-argumento
+`count`/`for_each` dependesse desse valor (ex.: `count = var.policy_json != null`), o plan
+quebraria com `Invalid count argument`. Com map, o `for_each` itera sobre as **chaves**
+(rótulos estáticos), e os valores desconhecidos vão só no corpo do recurso — que é o
+[padrão recomendado](https://developer.hashicorp.com/terraform/language/meta-arguments/for_each)
+para valores computados.
 
 ---
 
@@ -97,20 +105,23 @@ resource "aws_iam_role" "irsa" {
 }
 
 resource "aws_iam_role_policy" "inline" {
-  count = var.policy_json != null ? 1 : 0
+  for_each = var.inline_policies
+  name     = "${var.name}-${each.key}"
+  policy   = each.value
   ...
 }
 
 resource "aws_iam_role_policy_attachment" "managed" {
-  for_each = toset(var.policy_arns)
+  for_each   = var.policy_arns
+  policy_arn = each.value
   ...
 }
 ```
 
-A policy inline é condicional (`count`) — só existe se `policy_json` for informado. As managed
-policies usam `for_each` sobre o conjunto de ARNs. Por isso a documentação pede ARNs
-**conhecidos no plan**: um ARN *known-after-apply* como chave de `for_each` faria o plan
-falhar (mesma limitação que aparece em qualquer `for_each` sobre valor computado).
+As duas usam `for_each` sobre o **map** (não sobre o valor): as chaves são rótulos estáticos
+informados pelo consumer (ex.: `app`, `s3`), conhecidos no plan, enquanto os valores (JSON da
+policy, ARN da managed policy) podem ser *known-after-apply*. É isso que permite anexar uma
+policy que referencia a fila SQS criada no mesmo apply sem quebrar o `for_each`.
 
 ---
 
@@ -156,7 +167,7 @@ Expõe `role_arn` (o dado mais usado — vai na annotation), `role_name` e `role
 ```
 data.aws_iam_policy_document.assume
         │
-        └──► aws_iam_role.irsa ──► aws_iam_role_policy.inline           (se policy_json)
+        └──► aws_iam_role.irsa ──► aws_iam_role_policy.inline           (por inline_policies)
                     │            └► aws_iam_role_policy_attachment.managed (por ARN)
                     │
                     └──► aws_ssm_parameter.role_arn                      (se create_ssm_parameter)
