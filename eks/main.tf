@@ -8,9 +8,9 @@ locals {
   node_role_arn    = var.create_node_iam_role ? try(aws_iam_role.node[0].arn, null) : var.node_iam_role_arn
 
   enable_encryption  = var.create_kms_key || var.kms_key_arn != null
-  encryption_key_arn = var.create_kms_key ? aws_kms_key.this[0].arn : var.kms_key_arn
+  encryption_key_arn = var.create_kms_key ? aws_kms_key.secrets[0].arn : var.kms_key_arn
 
-  oidc_provider_url   = replace(aws_eks_cluster.this.identity[0].oidc[0].issuer, "https://", "")
+  oidc_provider_url   = replace(aws_eks_cluster.main.identity[0].oidc[0].issuer, "https://", "")
   create_ebs_csi_irsa = var.enable_ebs_csi_driver && var.enable_irsa
 
   access_policy_associations = merge([
@@ -26,14 +26,14 @@ locals {
   ]...)
 }
 
-resource "aws_cloudwatch_log_group" "this" {
+resource "aws_cloudwatch_log_group" "control_plane" {
   name              = "/aws/eks/${var.cluster_name}/cluster"
   retention_in_days = var.cloudwatch_log_retention_in_days
   kms_key_id        = var.cloudwatch_log_kms_key_id
   tags              = var.tags
 }
 
-resource "aws_eks_cluster" "this" {
+resource "aws_eks_cluster" "main" {
   name                      = var.cluster_name
   version                   = var.cluster_version
   role_arn                  = local.cluster_role_arn
@@ -66,6 +66,6 @@ resource "aws_eks_cluster" "this" {
 
   depends_on = [
     aws_iam_role_policy_attachment.cluster,
-    aws_cloudwatch_log_group.this,
+    aws_cloudwatch_log_group.control_plane,
   ]
 }

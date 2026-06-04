@@ -1,7 +1,7 @@
-resource "aws_eks_node_group" "this" {
+resource "aws_eks_node_group" "managed" {
   for_each = var.node_groups
 
-  cluster_name    = aws_eks_cluster.this.name
+  cluster_name    = aws_eks_cluster.main.name
   node_group_name = "${var.cluster_name}-${each.key}"
   node_role_arn   = local.node_role_arn
   subnet_ids      = length(each.value.subnet_ids) > 0 ? each.value.subnet_ids : var.subnet_ids

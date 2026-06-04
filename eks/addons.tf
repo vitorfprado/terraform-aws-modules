@@ -1,7 +1,7 @@
-resource "aws_eks_addon" "this" {
+resource "aws_eks_addon" "managed" {
   for_each = var.cluster_addons
 
-  cluster_name = aws_eks_cluster.this.name
+  cluster_name = aws_eks_cluster.main.name
   addon_name   = each.key
 
   addon_version               = each.value.version
@@ -13,5 +13,5 @@ resource "aws_eks_addon" "this" {
 
   tags = var.tags
 
-  depends_on = [aws_eks_node_group.this]
+  depends_on = [aws_eks_node_group.managed]
 }

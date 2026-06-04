@@ -1,4 +1,4 @@
-resource "aws_kms_key" "this" {
+resource "aws_kms_key" "secrets" {
   count = var.create_kms_key ? 1 : 0
 
   description             = "Criptografia de secrets do cluster EKS ${var.cluster_name}"
@@ -7,9 +7,9 @@ resource "aws_kms_key" "this" {
   tags                    = var.tags
 }
 
-resource "aws_kms_alias" "this" {
+resource "aws_kms_alias" "secrets" {
   count = var.create_kms_key ? 1 : 0
 
   name          = "alias/eks/${var.cluster_name}"
-  target_key_id = aws_kms_key.this[0].key_id
+  target_key_id = aws_kms_key.secrets[0].key_id
 }

@@ -7,7 +7,7 @@ data "aws_iam_policy_document" "ebs_csi_assume" {
 
     principals {
       type        = "Federated"
-      identifiers = [aws_iam_openid_connect_provider.this[0].arn]
+      identifiers = [aws_iam_openid_connect_provider.oidc[0].arn]
     }
 
     condition {
@@ -42,7 +42,7 @@ resource "aws_iam_role_policy_attachment" "ebs_csi" {
 resource "aws_eks_addon" "ebs_csi" {
   count = var.enable_ebs_csi_driver ? 1 : 0
 
-  cluster_name             = aws_eks_cluster.this.name
+  cluster_name             = aws_eks_cluster.main.name
   addon_name               = "aws-ebs-csi-driver"
   addon_version            = var.ebs_csi_driver_version
   service_account_role_arn = one(aws_iam_role.ebs_csi[*].arn)
@@ -52,7 +52,7 @@ resource "aws_eks_addon" "ebs_csi" {
 
   tags = var.tags
 
-  depends_on = [aws_eks_node_group.this]
+  depends_on = [aws_eks_node_group.managed]
 
   lifecycle {
     precondition {
