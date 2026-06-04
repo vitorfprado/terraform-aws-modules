@@ -1,0 +1,3 @@
+region      = "us-east-1"
+db_password = "trocar-esta-senha"
+api_key     = "exemplo-api-key"
