@@ -38,7 +38,7 @@ resource "aws_vpc_security_group_egress_rule" "all" {
   count = var.create_security_group ? 1 : 0
 
   security_group_id = aws_security_group.elasticache[0].id
-  description       = "Permite todo o tráfego de saída"
+  description       = "Permite todo o trafego de saida"
   cidr_ipv4         = "0.0.0.0/0"
   ip_protocol       = "-1"
 }
