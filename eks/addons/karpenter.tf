@@ -54,12 +54,12 @@ resource "aws_iam_role" "karpenter_node" {
 }
 
 resource "aws_iam_role_policy_attachment" "karpenter_node" {
-  for_each = var.enable_karpenter ? toset([
+  for_each = toset(var.enable_karpenter ? [
     "arn:${data.aws_partition.current[0].partition}:iam::aws:policy/AmazonEKSWorkerNodePolicy",
     "arn:${data.aws_partition.current[0].partition}:iam::aws:policy/AmazonEKS_CNI_Policy",
     "arn:${data.aws_partition.current[0].partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
     "arn:${data.aws_partition.current[0].partition}:iam::aws:policy/AmazonSSMManagedInstanceCore",
-  ]) : []
+  ] : [])
 
   role       = aws_iam_role.karpenter_node[0].name
   policy_arn = each.value
