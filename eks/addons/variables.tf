@@ -126,6 +126,30 @@ variable "external_secrets_helm_values" {
   default     = []
 }
 
+variable "enable_keda" {
+  description = "Instala o KEDA (Kubernetes Event-driven Autoscaling) no namespace dedicado. A IRSA do keda-operator (quando usa scalers AWS) fica a cargo do consumidor, via keda_helm_values."
+  type        = bool
+  default     = false
+}
+
+variable "keda_chart_version" {
+  description = "Versão do chart Helm do KEDA (repo kedacore)."
+  type        = string
+  default     = "2.18.3"
+}
+
+variable "keda_namespace" {
+  description = "Namespace onde o KEDA será instalado."
+  type        = string
+  default     = "keda"
+}
+
+variable "keda_helm_values" {
+  description = "Lista de documentos YAML (raw) com valores adicionais para o chart do KEDA (ex.: anotação IRSA no serviceAccount.operator)."
+  type        = list(string)
+  default     = []
+}
+
 variable "enable_kube_prometheus_stack" {
   description = "Instala o kube-prometheus-stack (Prometheus, Alertmanager e Grafana) no namespace dedicado."
   type        = bool

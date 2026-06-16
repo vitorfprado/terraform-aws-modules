@@ -29,3 +29,11 @@ resource "kubernetes_namespace_v1" "argocd" {
     name = var.argocd_namespace
   }
 }
+
+resource "kubernetes_namespace_v1" "keda" {
+  count = var.enable_keda ? 1 : 0
+
+  metadata {
+    name = var.keda_namespace
+  }
+}

@@ -8,6 +8,7 @@ output "enabled_addons" {
     kube_prometheus_stack        = var.enable_kube_prometheus_stack
     argocd                       = var.enable_argocd
     karpenter                    = var.enable_karpenter
+    keda                         = var.enable_keda
   }
 }
 
@@ -43,5 +44,6 @@ output "namespaces" {
     external_secrets = try(kubernetes_namespace_v1.external_secrets[0].metadata[0].name, null)
     monitoring       = try(kubernetes_namespace_v1.monitoring[0].metadata[0].name, null)
     argocd           = try(kubernetes_namespace_v1.argocd[0].metadata[0].name, null)
+    keda             = try(kubernetes_namespace_v1.keda[0].metadata[0].name, null)
   }
 }
