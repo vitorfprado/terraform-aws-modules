@@ -15,8 +15,11 @@ Este submódulo **não** cria o cluster nem configura os providers. Ele recebe o
 | `enable_kube_prometheus_stack` | kube-prometheus-stack | `monitoring` | não |
 | `enable_argocd` | Argo CD | `argocd` | não |
 | `enable_karpenter` | Karpenter | `kube-system` | **sim** |
+| `enable_keda` | KEDA | `keda` | não\*\* |
 
 \* O External Secrets Operator é instalado sem IRSA. Cada `SecretStore`/`ClusterSecretStore` define a própria autenticação — para acessar AWS Secrets Manager/SSM, crie uma role IRSA dedicada e referencie-a no `serviceAccountRef`. Ver [Pontos de atenção](#pontos-de-atenção).
+
+\*\* O KEDA é instalado sem IRSA. As permissões dependem do scaler usado; para scalers AWS (ex.: SQS), crie uma role IRSA com permissões mínimas e injete a anotação no `serviceAccount.operator` via `keda_helm_values`. Ver [Pontos de atenção](#pontos-de-atenção).
 
 ## Uso
 
@@ -87,6 +90,15 @@ kube_prometheus_stack_helm_values = [
 - **AWS Load Balancer Controller:** requer IRSA. O submódulo cria a IAM role, a policy (a partir de [`policies/aws_lbc_iam_policy.json`](./policies/aws_lbc_iam_policy.json), a policy oficial v2.x) e o service account anotado. Exige que `enable_irsa = true` no módulo eks (padrão) e que as subnets estejam taggeadas com `kubernetes.io/role/elb` (públicas) e `kubernetes.io/role/internal-elb` (privadas) para o auto-discovery funcionar.
 - **CRDs (cert-manager / ESO):** instalados junto com o chart por padrão. Ao desinstalar, os CRDs podem permanecer no cluster — remova-os manualmente se necessário.
 - **External Secrets Operator:** para ler segredos da AWS, crie uma role IRSA com permissões mínimas (ex.: `secretsmanager:GetSecretValue` no ARN específico) e associe-a ao service account do `SecretStore`.
+- **KEDA:** instalado sem IRSA — as permissões dependem do scaler. Para scalers AWS (ex.: SQS), crie uma role IRSA mínima (ex.: `sqs:GetQueueAttributes` na fila) e injete a anotação no service account do operator via `keda_helm_values`:
+    ```hcl
+    keda_helm_values = [yamlencode({
+      serviceAccount = { operator = { annotations = {
+        "eks.amazonaws.com/role-arn" = aws_iam_role.keda.arn
+      } } }
+    })]
+    ```
+    Os `ScaledObject`/`TriggerAuthentication` (com `podIdentity.provider: aws`) são aplicados pelo consumidor, não pelo módulo.
 - **kube-prometheus-stack:** instala um volume considerável de CRDs e recursos. Avalie a capacidade dos node groups antes de habilitar.
 - **Argo CD:** após a instalação, recupere a senha inicial do admin com `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d`.
 - **Karpenter:** o submódulo provisiona toda a infraestrutura AWS necessária: IRSA do controller, IAM role dos nós, *access entry* do tipo `EC2_LINUX` (para os nós ingressarem no cluster), fila SQS de interrupção e regras do EventBridge. Exige `enable_irsa = true` no módulo eks (padrão) e `authentication_mode` com suporte a access entries (`API` ou `API_AND_CONFIG_MAP`). Pré-requisitos e passos pós-instalação:
