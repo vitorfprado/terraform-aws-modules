@@ -2,7 +2,7 @@ resource "aws_security_group" "ec2" {
   count = var.create_security_group ? 1 : 0
 
   name_prefix = "${var.name}-"
-  description = "Security group da instância ${var.name}"
+  description = "Security group da instancia ${var.name}"
   vpc_id      = var.vpc_id
 
   tags = merge(var.tags, { Name = var.name })
@@ -28,7 +28,7 @@ resource "aws_vpc_security_group_egress_rule" "all" {
   count = var.create_security_group ? 1 : 0
 
   security_group_id = aws_security_group.ec2[0].id
-  description       = "Permite todo o tráfego de saída"
+  description       = "Permite todo o trafego de saida"
   cidr_ipv4         = "0.0.0.0/0"
   ip_protocol       = "-1"
 }
