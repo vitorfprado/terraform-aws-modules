@@ -85,6 +85,12 @@ variable "create_security_group" {
   default     = true
 }
 
+variable "security_group_name" {
+  description = "Nome do security group criado para o cache. Quando null, usa o padrão <name>-cache."
+  type        = string
+  default     = null
+}
+
 variable "vpc_security_group_ids" {
   description = "Security groups existentes a associar ao cache, somados ao criado pelo módulo (se houver)."
   type        = list(string)
