@@ -122,6 +122,12 @@ variable "create_security_group" {
   default     = true
 }
 
+variable "security_group_name" {
+  description = "Nome do security group criado para o RDS. Quando null, usa o padrão <name>-rds."
+  type        = string
+  default     = null
+}
+
 variable "vpc_security_group_ids" {
   description = "Security groups existentes a associar à instância, somados ao criado pelo módulo (se houver)."
   type        = list(string)

@@ -13,14 +13,14 @@ resource "aws_vpc" "main" {
   enable_dns_support   = var.enable_dns_support
   enable_dns_hostnames = var.enable_dns_hostnames
 
-  tags = merge(var.tags, { Name = var.name })
+  tags = merge(var.tags, { Name = "vpc-${var.name}" })
 }
 
 resource "aws_internet_gateway" "igw" {
   count = length(var.public_subnet_cidrs) > 0 ? 1 : 0
 
   vpc_id = aws_vpc.main.id
-  tags   = merge(var.tags, { Name = var.name })
+  tags   = merge(var.tags, { Name = "igw-${var.name}" })
 }
 
 resource "aws_subnet" "public" {
@@ -34,7 +34,7 @@ resource "aws_subnet" "public" {
   tags = merge(
     var.tags,
     var.public_subnet_tags,
-    { Name = "${var.name}-public-${element(local.azs, count.index)}" },
+    { Name = "snet-${var.name}-public-${element(local.azs, count.index)}" },
   )
 }
 
@@ -48,7 +48,7 @@ resource "aws_subnet" "private" {
   tags = merge(
     var.tags,
     var.private_subnet_tags,
-    { Name = "${var.name}-private-${element(local.azs, count.index)}" },
+    { Name = "snet-${var.name}-private-${element(local.azs, count.index)}" },
   )
 }
 
@@ -56,7 +56,7 @@ resource "aws_eip" "nat" {
   count = local.nat_gateway_count
 
   domain = "vpc"
-  tags   = merge(var.tags, { Name = "${var.name}-nat-${count.index + 1}" })
+  tags   = merge(var.tags, { Name = "eip-${var.name}-${count.index + 1}" })
 }
 
 resource "aws_nat_gateway" "ngw" {
@@ -65,7 +65,7 @@ resource "aws_nat_gateway" "ngw" {
   allocation_id = aws_eip.nat[count.index].id
   subnet_id     = aws_subnet.public[count.index].id
 
-  tags = merge(var.tags, { Name = "${var.name}-${count.index + 1}" })
+  tags = merge(var.tags, { Name = "ngw-${var.name}-${count.index + 1}" })
 
   depends_on = [aws_internet_gateway.igw]
 }
@@ -74,7 +74,7 @@ resource "aws_route_table" "public" {
   count = length(var.public_subnet_cidrs) > 0 ? 1 : 0
 
   vpc_id = aws_vpc.main.id
-  tags   = merge(var.tags, { Name = "${var.name}-public" })
+  tags   = merge(var.tags, { Name = "rt-${var.name}-public" })
 }
 
 resource "aws_route" "public_internet" {
@@ -96,7 +96,7 @@ resource "aws_route_table" "private" {
   count = length(var.private_subnet_cidrs)
 
   vpc_id = aws_vpc.main.id
-  tags   = merge(var.tags, { Name = "${var.name}-private-${element(local.azs, count.index)}" })
+  tags   = merge(var.tags, { Name = "rt-${var.name}-private-${element(local.azs, count.index)}" })
 }
 
 resource "aws_route" "private_nat" {

@@ -1,11 +1,12 @@
 resource "aws_security_group" "elasticache" {
   count = var.create_security_group ? 1 : 0
 
-  name_prefix = "${var.name}-cache-"
+  # Nome livre via security_group_name; quando null, cai no padrao <name>-cache.
+  name_prefix = "${coalesce(var.security_group_name, "${var.name}-cache")}-"
   description = "Security group do cache ${var.name}"
   vpc_id      = var.vpc_id
 
-  tags = merge(var.tags, { Name = "${var.name}-cache" })
+  tags = merge(var.tags, { Name = coalesce(var.security_group_name, "${var.name}-cache") })
 
   lifecycle {
     create_before_destroy = true
