@@ -23,7 +23,7 @@ Secret multi-campo (consumido por `property` no External Secrets):
 
 ```hcl
 module "rds_secret" {
-  source = "github.com/vitorfprado/terraform-aws-modules//secrets-manager?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//secrets-manager?ref=main"
 
   name = "togglemaster/rds/auth"
 
@@ -44,7 +44,7 @@ Secret de string única:
 
 ```hcl
 module "api_key" {
-  source = "github.com/vitorfprado/terraform-aws-modules//secrets-manager?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//secrets-manager?ref=main"
 
   name          = "togglemaster/evaluation/api-key"
   secret_string = random_password.api_key.result

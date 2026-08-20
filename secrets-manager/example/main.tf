@@ -1,7 +1,7 @@
 # Secret multi-campo (JSON) — o caso típico de connection string consumida pelo
 # External Secrets via property.
 module "rds_secret" {
-  source = "github.com/vitorfprado/terraform-aws-modules//secrets-manager?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//secrets-manager?ref=main"
 
   name        = "togglemaster/rds/auth"
   description = "Credenciais RDS do auth-service"
@@ -25,7 +25,7 @@ module "rds_secret" {
 
 # Secret de string única (ex.: uma API key).
 module "api_key_secret" {
-  source = "github.com/vitorfprado/terraform-aws-modules//secrets-manager?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//secrets-manager?ref=main"
 
   name          = "togglemaster/evaluation/api-key"
   secret_string = var.api_key

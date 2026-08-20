@@ -13,7 +13,7 @@ Diferente dos módulos de VPC, EKS e RDS, o DynamoDB é **serverless e regional*
 
 ```hcl
 module "dynamodb_sessions" {
-  source = "github.com/vitorfprado/terraform-aws-modules//dynamodb?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//dynamodb?ref=main"
 
   name     = "sessions"
   hash_key = "session_id"
@@ -35,7 +35,7 @@ Exemplo com sort key e GSI:
 
 ```hcl
 module "dynamodb_orders" {
-  source = "github.com/vitorfprado/terraform-aws-modules//dynamodb?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//dynamodb?ref=main"
 
   name      = "orders"
   hash_key  = "customer_id"

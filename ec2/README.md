@@ -17,7 +17,7 @@ Como o RDS, é um recurso de VPC: recebe `vpc_id` e `subnet_id` como entrada e n
 
 ```hcl
 module "app_server" {
-  source = "github.com/vitorfprado/terraform-aws-modules//ec2?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//ec2?ref=main"
 
   name          = "app-server"
   instance_type = "t3.small"
@@ -40,7 +40,7 @@ Servidor web público com Elastic IP e regras de entrada:
 
 ```hcl
 module "web" {
-  source = "github.com/vitorfprado/terraform-aws-modules//ec2?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//ec2?ref=main"
 
   name          = "web"
   instance_type = "t3.micro"

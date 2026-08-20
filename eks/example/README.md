@@ -6,12 +6,12 @@ Os módulos são referenciados **diretamente do GitHub** (branch `main`), então
 
 ```hcl
 module "vpc" {
-  source = "github.com/vitorfprado/terraform-aws-modules//vpc?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//vpc?ref=main"
   # ...
 }
 
 module "eks" {
-  source = "github.com/vitorfprado/terraform-aws-modules//eks?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//eks?ref=main"
   # ...
 }
 ```
@@ -20,10 +20,10 @@ module "eks" {
 
 ```
 example/
-├── main.tf                  # cria a VPC e o cluster (módulos vpc + eks + addons)
+├── main.tf                  # cria a VPC e o cluster (módulos vpc + eks)
 ├── variables.tf             # variáveis de entrada do exemplo
 ├── outputs.tf               # outputs úteis (vpc, endpoint, OIDC, kubeconfig)
-├── versions.tf              # versões e providers (aws, kubernetes, helm)
+├── versions.tf              # versões e provider (aws)
 └── terraform.tfvars.example # valores de exemplo
 ```
 
@@ -67,34 +67,19 @@ example/
 - Add-ons gerenciados: `coredns`, `kube-proxy`, `vpc-cni`, `eks-pod-identity-agent` e o `aws-ebs-csi-driver` (com IRSA, para volumes EBS dinâmicos)
 - Uma access entry concedendo acesso de administrador ao `admin_role_arn`
 
-Um único `terraform apply` resolve a ordem: VPC → EKS → add-ons.
+Um único `terraform apply` resolve a ordem: VPC → EKS → add-ons gerenciados.
 
-## Add-ons opcionais via Helm
+## Componentes do cluster
 
-Este exemplo também demonstra a instalação de componentes via Helm, usando o submódulo [`../addons`](../addons). Os providers `helm` e `kubernetes` já estão configurados em [`versions.tf`](./versions.tf) com autenticação via `aws eks get-token`.
+Este exemplo provisiona **apenas o plano AWS** — só o provider `aws` é necessário. Componentes que rodam dentro do cluster (Karpenter, AWS Load Balancer Controller, External Secrets, etc.) são instalados por Helm ou GitOps, fora deste exemplo.
 
-Todos os add-ons vêm **desabilitados**. Para instalar, defina a flag correspondente como `true` em `terraform.tfvars`:
+A infraestrutura AWS que alguns deles exigem (IAM, IRSA, SQS, EventBridge) tem módulos próprios, que consomem os outputs `oidc_provider_arn` e `oidc_provider_url` daqui:
 
-| Variável | Componente |
-|----------|------------|
-| `enable_metrics_server` | Metrics Server |
-| `enable_aws_load_balancer_controller` | AWS Load Balancer Controller (cria IRSA) |
-| `enable_cert_manager` | cert-manager |
-| `enable_external_secrets` | External Secrets Operator |
-| `enable_kube_prometheus_stack` | Prometheus + Grafana + Alertmanager |
-| `enable_argocd` | Argo CD |
-| `enable_karpenter` | Karpenter (autoscaling de nós; cria IRSA, SQS e EventBridge) |
-
-Exemplo — habilitar apenas Metrics Server e AWS Load Balancer Controller:
-
-```hcl
-enable_metrics_server               = true
-enable_aws_load_balancer_controller = true
-```
-
-Detalhes de cada componente, versões de chart e pontos de atenção (IRSA, CRDs, tags de subnet) estão documentados em [`../addons/README.md`](../addons/README.md).
-
-> **Importante:** os add-ons exigem o `aws` CLI instalado localmente (usado pelo `exec` dos providers) e que o cluster já esteja acessível. Em um apply do zero, o Terraform cria o cluster antes dos releases Helm.
+| Módulo | Componente |
+|--------|------------|
+| [`../../eks-karpenter`](../../eks-karpenter) | Karpenter — role dos nós, IRSA do controller, fila de interrupção e EventBridge |
+| [`../../eks-aws-lb-controller`](../../eks-aws-lb-controller) | AWS Load Balancer Controller — IRSA com a policy do projeto |
+| [`../../iam-irsa`](../../iam-irsa) | Qualquer outro componente que precise de identidade AWS (External Secrets, KEDA, …) |
 
 ## Ajustes comuns
 

@@ -1,5 +1,5 @@
 module "vpc" {
-  source = "github.com/vitorfprado/terraform-aws-modules//vpc?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//vpc?ref=main"
 
   name       = var.name
   cidr_block = var.cidr_block

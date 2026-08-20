@@ -14,7 +14,7 @@ Provisiona uma VPC na AWS com subnets públicas e privadas distribuídas em múl
 
 ```hcl
 module "vpc" {
-  source = "github.com/vitorfprado/terraform-aws-modules//vpc?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//vpc?ref=main"
 
   name       = "producao"
   cidr_block = "10.0.0.0/16"

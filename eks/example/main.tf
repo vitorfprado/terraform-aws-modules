@@ -1,5 +1,5 @@
 module "vpc" {
-  source = "github.com/vitorfprado/terraform-aws-modules//vpc?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//vpc?ref=main"
 
   name       = "${var.cluster_name}-vpc"
   cidr_block = "10.0.0.0/16"
@@ -26,7 +26,7 @@ module "vpc" {
 }
 
 module "eks" {
-  source = "github.com/vitorfprado/terraform-aws-modules//eks?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//eks?ref=main"
 
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
@@ -93,29 +93,4 @@ module "eks" {
     Environment = "example"
     ManagedBy   = "terraform"
   }
-}
-
-module "addons" {
-  source = "github.com/vitorfprado/terraform-aws-modules//eks/addons?ref=main"
-
-  cluster_name      = module.eks.cluster_name
-  oidc_provider_arn = module.eks.oidc_provider_arn
-  oidc_provider_url = module.eks.oidc_provider_url
-  vpc_id            = module.vpc.vpc_id
-  region            = var.region
-
-  enable_metrics_server               = var.enable_metrics_server
-  enable_aws_load_balancer_controller = var.enable_aws_load_balancer_controller
-  enable_cert_manager                 = var.enable_cert_manager
-  enable_external_secrets             = var.enable_external_secrets
-  enable_kube_prometheus_stack        = var.enable_kube_prometheus_stack
-  enable_argocd                       = var.enable_argocd
-  enable_karpenter                    = var.enable_karpenter
-
-  tags = {
-    Environment = "example"
-    ManagedBy   = "terraform"
-  }
-
-  depends_on = [module.eks]
 }

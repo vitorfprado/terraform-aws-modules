@@ -15,7 +15,7 @@ Como o DynamoDB, o SQS é **serverless e regional** — não há VPC nem securit
 
 ```hcl
 module "sqs_jobs" {
-  source = "github.com/vitorfprado/terraform-aws-modules//sqs?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//sqs?ref=main"
 
   name = "jobs"
 
@@ -35,7 +35,7 @@ Fila FIFO:
 
 ```hcl
 module "sqs_events" {
-  source = "github.com/vitorfprado/terraform-aws-modules//sqs?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//sqs?ref=main"
 
   name                        = "events"   # vira "events.fifo"
   fifo_queue                  = true
@@ -131,7 +131,7 @@ data "aws_iam_policy_document" "sns_to_sqs" {
 }
 
 module "sqs_jobs" {
-  source = "github.com/vitorfprado/terraform-aws-modules//sqs?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//sqs?ref=main"
   name   = "jobs"
   policy = data.aws_iam_policy_document.sns_to_sqs.json
 }

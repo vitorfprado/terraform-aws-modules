@@ -17,7 +17,7 @@ Como os demais módulos do repositório, é independente: recebe a rede (`vpc_id
 
 ```hcl
 module "rds_app" {
-  source = "github.com/vitorfprado/terraform-aws-modules//rds?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//rds?ref=main"
 
   name           = "app"
   engine         = "postgres"
@@ -131,7 +131,7 @@ O caso mais comum é permitir que pods do cluster acessem o banco. Passe o secur
 
 ```hcl
 module "rds_app" {
-  source = "github.com/vitorfprado/terraform-aws-modules//rds?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//rds?ref=main"
   # ...
   allowed_security_group_ids = [module.eks.cluster_security_group_id]
 }

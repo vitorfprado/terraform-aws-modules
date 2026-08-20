@@ -37,7 +37,7 @@ data "aws_iam_policy_document" "analytics" {
 }
 
 module "irsa_analytics" {
-  source = "github.com/vitorfprado/terraform-aws-modules//iam-irsa?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//iam-irsa?ref=main"
 
   name              = "role-eks-togglemaster-analytics"
   oidc_provider_arn = module.eks.oidc_provider_arn

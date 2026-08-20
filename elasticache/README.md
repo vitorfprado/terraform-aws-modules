@@ -18,7 +18,7 @@ Como o RDS, é um recurso de VPC: recebe `vpc_id` e `subnet_ids` como entrada e 
 
 ```hcl
 module "redis" {
-  source = "github.com/vitorfprado/terraform-aws-modules//elasticache?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//elasticache?ref=main"
 
   name           = "app-cache"
   engine         = "redis"
@@ -40,7 +40,7 @@ Cluster com alta disponibilidade (não-cluster, 1 primário + 1 réplica, failov
 
 ```hcl
 module "redis_ha" {
-  source = "github.com/vitorfprado/terraform-aws-modules//elasticache?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//elasticache?ref=main"
 
   name      = "sessions"
   node_type = "cache.r7g.large"
@@ -137,7 +137,7 @@ Assim como no RDS, libere o cache para o security group dos nós/cluster:
 
 ```hcl
 module "redis" {
-  source = "github.com/vitorfprado/terraform-aws-modules//elasticache?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//elasticache?ref=main"
   # ...
   allowed_security_group_ids = [module.eks.cluster_security_group_id]
 }

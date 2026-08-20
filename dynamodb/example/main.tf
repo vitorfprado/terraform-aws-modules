@@ -1,5 +1,5 @@
 module "dynamodb" {
-  source = "github.com/vitorfprado/terraform-aws-modules//dynamodb?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//dynamodb?ref=main"
 
   name      = var.name
   hash_key  = "customer_id"

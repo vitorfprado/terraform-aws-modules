@@ -1,5 +1,5 @@
 module "vpc" {
-  source = "github.com/vitorfprado/terraform-aws-modules//vpc?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//vpc?ref=main"
 
   name       = "${var.cluster_name}-vpc"
   cidr_block = "10.0.0.0/16"
@@ -17,7 +17,7 @@ module "vpc" {
 }
 
 module "eks" {
-  source = "github.com/vitorfprado/terraform-aws-modules//eks?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//eks?ref=main"
 
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
@@ -60,7 +60,7 @@ data "aws_iam_policy_document" "analytics" {
 
 # IRSA com policy inline + publicação do ARN no SSM.
 module "irsa_analytics" {
-  source = "github.com/vitorfprado/terraform-aws-modules//iam-irsa?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//iam-irsa?ref=main"
 
   name              = "${var.cluster_name}-analytics"
   oidc_provider_arn = module.eks.oidc_provider_arn
@@ -83,7 +83,7 @@ module "irsa_analytics" {
 
 # IRSA apenas com managed policy (somente leitura no S3, como exemplo).
 module "irsa_readonly" {
-  source = "github.com/vitorfprado/terraform-aws-modules//iam-irsa?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//iam-irsa?ref=main"
 
   name              = "${var.cluster_name}-readonly"
   oidc_provider_arn = module.eks.oidc_provider_arn

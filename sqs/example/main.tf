@@ -1,5 +1,5 @@
 module "sqs" {
-  source = "github.com/vitorfprado/terraform-aws-modules//sqs?ref=main"
+  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//sqs?ref=main"
 
   name = var.name
 
