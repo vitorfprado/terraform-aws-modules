@@ -1,5 +1,5 @@
 module "vpc" {
-  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//vpc?ref=main"
+  source = "git::https://github.com/vitorfprado/terraform-aws-modules.git//vpc?ref=v1.1.0"
 
   name       = var.name
   cidr_block = var.cidr_block
@@ -9,6 +9,8 @@ module "vpc" {
 
   enable_nat_gateway = true
   single_nat_gateway = true
+
+  enable_s3_gateway_endpoint = true
 
   tags = {
     Environment = "example"

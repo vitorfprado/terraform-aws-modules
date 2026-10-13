@@ -45,6 +45,12 @@ variable "map_public_ip_on_launch" {
   default     = true
 }
 
+variable "enable_s3_gateway_endpoint" {
+  description = "Cria um VPC Gateway Endpoint para o S3 associado às route tables privadas. Gratuito; tira do NAT Gateway (cobrado por GB) o tráfego ao S3, incluindo camadas de imagens do ECR."
+  type        = bool
+  default     = false
+}
+
 variable "enable_dns_support" {
   description = "Habilita resolução de DNS na VPC."
   type        = bool

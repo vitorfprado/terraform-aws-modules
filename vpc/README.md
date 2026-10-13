@@ -9,12 +9,13 @@ Provisiona uma VPC na AWS com subnets públicas e privadas distribuídas em múl
 - `aws_internet_gateway`
 - `aws_nat_gateway` + `aws_eip` – único (econômico) ou um por AZ (HA)
 - `aws_route_table` / `aws_route` / `aws_route_table_association`
+- `aws_vpc_endpoint` – Gateway Endpoint do S3 nas route tables privadas (opcional, `enable_s3_gateway_endpoint`)
 
 ## Uso
 
 ```hcl
 module "vpc" {
-  source = "github.com/fiap-tech-challenge-devops/terraform-aws-modules//vpc?ref=main"
+  source = "git::https://github.com/vitorfprado/terraform-aws-modules.git//vpc?ref=v1.1.0"
 
   name       = "producao"
   cidr_block = "10.0.0.0/16"
@@ -52,6 +53,7 @@ As AZs são selecionadas automaticamente conforme a quantidade de subnets. Para 
 | `enable_nat_gateway` | Cria NAT Gateways para as subnets privadas. | `bool` | `true` | não |
 | `single_nat_gateway` | Um único NAT (econômico) vs. um por AZ (HA). | `bool` | `false` | não |
 | `map_public_ip_on_launch` | IP público automático nas subnets públicas. | `bool` | `true` | não |
+| `enable_s3_gateway_endpoint` | Gateway Endpoint do S3 nas route tables privadas (gratuito; evita custo de NAT por GB). | `bool` | `false` | não |
 | `enable_dns_support` | Habilita resolução DNS na VPC. | `bool` | `true` | não |
 | `enable_dns_hostnames` | Habilita hostnames DNS (necessário p/ EKS). | `bool` | `true` | não |
 | `public_subnet_tags` | Tags extras nas subnets públicas. | `map(string)` | `{}` | não |
@@ -76,4 +78,5 @@ As AZs são selecionadas automaticamente conforme a quantidade de subnets. Para 
 | `internet_gateway_id` | ID do Internet Gateway. |
 | `nat_gateway_ids` | IDs dos NAT Gateways. |
 | `nat_public_ips` | IPs públicos dos NAT Gateways. |
+| `s3_gateway_endpoint_id` | ID do Gateway Endpoint do S3 (`null` se desabilitado). |
 | `azs` | AZs utilizadas. |
