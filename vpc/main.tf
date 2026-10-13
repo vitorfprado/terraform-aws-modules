@@ -113,3 +113,23 @@ resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private[count.index].id
 }
+
+# Resolve o nome do serviço (com.amazonaws.<região>.s3) sem depender de atributos de região que mudaram entre
+# as versões 5 e 6 do provider.
+data "aws_vpc_endpoint_service" "s3" {
+  count = var.enable_s3_gateway_endpoint ? 1 : 0
+
+  service      = "s3"
+  service_type = "Gateway"
+}
+
+resource "aws_vpc_endpoint" "s3" {
+  count = var.enable_s3_gateway_endpoint ? 1 : 0
+
+  vpc_id            = aws_vpc.main.id
+  service_name      = data.aws_vpc_endpoint_service.s3[0].service_name
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = aws_route_table.private[*].id
+
+  tags = merge(var.tags, { Name = "vpce-${var.name}-s3" })
+}

@@ -58,6 +58,11 @@ output "nat_public_ips" {
   value       = aws_eip.nat[*].public_ip
 }
 
+output "s3_gateway_endpoint_id" {
+  description = "ID do Gateway Endpoint do S3 (null quando desabilitado)."
+  value       = try(aws_vpc_endpoint.s3[0].id, null)
+}
+
 output "azs" {
   description = "Zonas de disponibilidade utilizadas."
   value       = local.azs

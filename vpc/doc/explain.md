@@ -154,6 +154,44 @@ Esta é a decisão mais importante do módulo. Subnets privadas precisam de rout
 
 Se usássemos uma route table compartilhada para as privadas (como nas públicas), o modo HA seria impossível de implementar — todas as subnets apontariam para o mesmo NAT independente do `single_nat_gateway`.
 
+### Gateway Endpoint do S3 (opcional)
+
+```hcl
+data "aws_vpc_endpoint_service" "s3" {
+  count        = var.enable_s3_gateway_endpoint ? 1 : 0
+  service      = "s3"
+  service_type = "Gateway"
+}
+
+resource "aws_vpc_endpoint" "s3" {
+  count             = var.enable_s3_gateway_endpoint ? 1 : 0
+  vpc_endpoint_type = "Gateway"
+  service_name      = data.aws_vpc_endpoint_service.s3[0].service_name
+  route_table_ids   = aws_route_table.private[*].id
+}
+```
+
+Sem o endpoint, tráfego das subnets privadas para o S3 sai pelo NAT Gateway, que cobra **por GB processado** —
+inclusive o download de camadas de imagens do ECR, que ficam armazenadas no S3. O Gateway Endpoint **não tem custo**:
+a AWS adiciona às route tables selecionadas uma rota cujo destino é a *prefix list* do S3 na região e cujo alvo é o
+endpoint. Pela regra do prefixo mais específico, essa rota vence o `0.0.0.0/0 → NAT` para o S3, e todo o resto
+continua indo para o NAT.
+
+Decisões de desenho:
+
+- **Só as route tables privadas.** As públicas saem pelo Internet Gateway, que não cobra processamento; o endpoint
+  não traria economia ali.
+- **Nome do serviço via data source** (`aws_vpc_endpoint_service`) em vez de montar `com.amazonaws.<região>.s3` à
+  mão: funciona em qualquer região/partição e não depende do atributo de região do `aws_region`, que mudou entre as
+  versões 5 e 6 do provider.
+- **Default `false`:** adicionar o endpoint muda as rotas de quem já usa o módulo; por isso entra desligado e a
+  mudança é compatível (versão *minor*).
+- **Sem endpoint policy:** a policy padrão permite acesso total ao S3, e as permissões IAM de quem faz a chamada
+  continuam valendo por cima dela.
+
+Referências: [Gateway endpoints](https://docs.aws.amazon.com/vpc/latest/privatelink/gateway-endpoints.html) ·
+[ECR e S3](https://docs.aws.amazon.com/AmazonECR/latest/userguide/vpc-endpoints.html).
+
 ---
 
 ## Fluxo completo de um pacote saindo de uma subnet privada
